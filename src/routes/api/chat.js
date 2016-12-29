@@ -12,7 +12,7 @@ router.get('/list', (req, res, next) => {
     User.findOne({ AccessTokens: req.query.token }, 'Username', (err, user) => {
         if(err || !user) return utils.jsonResponse(res, { message: 'No user found' }, 400);
 
-        Chat.ChatList.findOne({ Username: user.Username }, (err, list) => {
+        Chat.ChatList.find({ $or: [ { 'Sender.Username': user.Username }, { 'Recipient.Username': user.Username } ] }, (err, list) => {
             if(err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
 
             res.json({ success: true, result: list || [] }).end();
@@ -33,19 +33,29 @@ router.get('/history', (req, res, next) => {
 });
 
 router.put('/list/:target', (req, res, next) => {
-    User.findOne({ AccessToken: req.query.token }, 'Username', (err, user) => {
-        if(err || !user) return utils.jsonResponse(res, { message: 'No user found' }, 400);
+    User.findOne({ AccessTokens: req.query.token }, 'Username DisplayName', (err, sender) => {
+        if(err || !sender) return utils.jsonResponse(res, { message: 'No user found' }, 400);
 
-        let list = new Chat.ChatList({
-            Sender: user.Username,
-            Recipient: req.params.target
+        User.findOne({ Username: req.params.target }, 'Username DisplayName', (err, recipient) => {
+            if(err || !recipient) return utils.jsonResponse(res, { message: 'No user found' }, 400);
+
+            let list = new Chat.ChatList({
+                Sender: {
+                    Username: sender.Username,
+                    DisplayName: sender.DisplayName
+                },
+                Recipient: {
+                    Username: recipient.Username,
+                    DisplayName: recipient.DisplayName
+                }
+            });
+
+            list.save(err => {
+                if(err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
+                res.json({ success: true, list: list }).end();
+            });
         });
-
-        list.save(err => {
-            if(err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
-            res.json({ success: true, list: list }).end();
-        })
-    })
+    });
 });
 
 router.post('/:id', (req, res, next) => {

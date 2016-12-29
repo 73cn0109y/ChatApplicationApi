@@ -55,13 +55,13 @@ const ChatListSchema = new mongoose.Schema({
         type: Number,
         select: false
     },
-    Username: {
-        type: String,
-        required: true
+    Sender: {
+        Username: String,
+        DisplayName: String
     },
     Recipient: {
-        type: String,
-        required: true
+        Username: String,
+        DisplayName: String
     },
     LastMessage: {
         type: String,

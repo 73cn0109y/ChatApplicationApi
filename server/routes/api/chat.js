@@ -14,7 +14,7 @@ router.get('/list', function (req, res, next) {
     User.findOne({ AccessTokens: req.query.token }, 'Username', function (err, user) {
         if (err || !user) return utils.jsonResponse(res, { message: 'No user found' }, 400);
 
-        Chat.ChatList.findOne({ Username: user.Username }, function (err, list) {
+        Chat.ChatList.find({ $or: [{ 'Sender.Username': user.Username }, { 'Recipient.Username': user.Username }] }, function (err, list) {
             if (err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
 
             res.json({ success: true, result: list || [] }).end();
@@ -35,17 +35,27 @@ router.get('/history', function (req, res, next) {
 });
 
 router.put('/list/:target', function (req, res, next) {
-    User.findOne({ AccessToken: req.query.token }, 'Username', function (err, user) {
-        if (err || !user) return utils.jsonResponse(res, { message: 'No user found' }, 400);
+    User.findOne({ AccessTokens: req.query.token }, 'Username DisplayName', function (err, sender) {
+        if (err || !sender) return utils.jsonResponse(res, { message: 'No user found' }, 400);
 
-        var list = new Chat.ChatList({
-            Sender: user.Username,
-            Recipient: req.params.target
-        });
+        User.findOne({ Username: req.params.target }, 'Username DisplayName', function (err, recipient) {
+            if (err || !recipient) return utils.jsonResponse(res, { message: 'No user found' }, 400);
 
-        list.save(function (err) {
-            if (err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
-            res.json({ success: true, list: list }).end();
+            var list = new Chat.ChatList({
+                Sender: {
+                    Username: sender.Username,
+                    DisplayName: sender.DisplayName
+                },
+                Recipient: {
+                    Username: recipient.Username,
+                    DisplayName: recipient.DisplayName
+                }
+            });
+
+            list.save(function (err) {
+                if (err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
+                res.json({ success: true, list: list }).end();
+            });
         });
     });
 });
