@@ -8,16 +8,6 @@ const User = require('../../models/user');
 const UserExt = require('../../models/extensions/user');
 const uuid = require('uuid');
 
-router.get('/:token', (req, res, next) => {
-    if(!req.params.token) return res.json({ success: false }).end();
-
-    User.findOne({ AccessTokens: req.params.token }, (err, user) => {
-        if(err || !user) return res.json({ success: false }).end();
-
-        res.json({ success: true, user: user }).end();
-    });
-});
-
 router.post('/login', (req, res, next) => {
     if(!req.body) return utils.jsonResponse(res, { message: 'No data defined' }, 400);
 
@@ -56,8 +46,19 @@ router.post('/register', (req, res, next) => {
     });
 });
 
+router.get('/logout', (req, res, next) => {
+    if(!req.query.token) return res.json({ success: true }).end();
+
+    User.update({ AccessToken: req.query.token }, { $pullAll: { AccessToken: [req.query.token] } }, (err, result) => {
+        if(err) return utils.jsonResponse(res, { message: 'Internal error' }, 500);
+        res.json({ success: true }).end();
+    });
+});
+
 router.all('/*', (req, res, next) => {
-    if(!req.query || !req.query.token) return utils.jsonResponse(res, { message: 'Invalid access token' }, 404);
+    if(!req.url.startsWith('/api/users')) {
+        if (!req.query || !req.query.token) return utils.jsonResponse(res, { message: 'Invalid access token' }, 404);
+    }
 
     next();
 });

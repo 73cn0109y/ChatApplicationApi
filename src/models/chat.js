@@ -19,6 +19,10 @@ const ChatMessageSchema = new mongoose.Schema({
         type: Number,
         select: false
     },
+    ChatId: {
+        type: String,
+        require: true
+    },
     Sender: {
         type: String,
         required: true
@@ -35,23 +39,6 @@ const ChatMessageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
-
-const ChatSchema = new mongoose.Schema({
-    _id: {
-        type: String,
-        index: {
-            unique: true
-        },
-        default: () => {
-            return uuid();
-        }
-    },
-    __v: {
-        type: Number,
-        select: false
-    },
-    Messages: [ChatMessageSchema]
 });
 
 const ChatListSchema = new mongoose.Schema({
@@ -77,6 +64,5 @@ const ChatListSchema = new mongoose.Schema({
 
 module.exports = {
     ChatList: mongoose.model('ChatList', ChatListSchema),
-    Chat: mongoose.model('Chat', ChatSchema),
     ChatMessage: mongoose.model('ChatMessage', ChatMessageSchema)
 }
