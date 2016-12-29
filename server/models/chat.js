@@ -61,7 +61,18 @@ var ChatListSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    Chats: [String] // array of chat id's
+    Recipient: {
+        type: String,
+        required: true
+    },
+    LastMessage: {
+        type: String,
+        default: 'No messages yet...'
+    },
+    LastTimestamp: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = {
