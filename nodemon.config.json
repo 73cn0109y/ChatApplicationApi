@@ -1,0 +1,8 @@
+{
+  "verbose": true,
+  "ignore": [
+    "database/*"
+  ],
+  "delay": 1000,
+  "ext": "js"
+}
