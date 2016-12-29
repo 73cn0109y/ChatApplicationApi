@@ -32,6 +32,13 @@ router.get('/history', (req, res, next) => {
     });
 });
 
+router.get('/:id', (req, res, next) => {
+    Chat.ChatList.findOne({ _id: req.params.id }, (err, info) => {
+        if(err || !info) return utils.jsonResponse(res, { message: 'Invalid chat id' }, 400);
+        res.json({ success: true, info: info }).end();
+    });
+});
+
 router.put('/list/:target', (req, res, next) => {
     User.findOne({ AccessTokens: req.query.token }, 'Username DisplayName', (err, sender) => {
         if(err || !sender) return utils.jsonResponse(res, { message: 'No user found' }, 400);

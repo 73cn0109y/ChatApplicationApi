@@ -7,6 +7,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const WebSocketServer = require('./server/wss');
 
 class Server {
     constructor(options) {
@@ -36,9 +37,11 @@ class Server {
     }
 
     finalInit() {
-        this.app.listen(this.options.port, this.options.ip, () => {
+        let server = this.app.listen(this.options.port, this.options.ip, () => {
             console.log(`Server listening on ${this.options.ip}:${this.options.port}`);
         });
+
+        this.socket = new WebSocketServer(server);
     }
 }
 
