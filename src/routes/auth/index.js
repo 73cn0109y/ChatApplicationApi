@@ -11,8 +11,6 @@ const uuid = require('uuid');
 router.get('/:token', (req, res, next) => {
     if(!req.params.token) return res.json({ success: false }).end();
 
-    console.log(req.params.token);
-
     User.findOne({ AccessTokens: req.params.token }, (err, user) => {
         if(err || !user) return res.json({ success: false }).end();
 
@@ -56,6 +54,12 @@ router.post('/register', (req, res, next) => {
         if(err) return utils.jsonResponse(res, { message: 'An error occured' }, 500);
         res.json({ success: true }).end();
     });
+});
+
+router.all('/*', (req, res, next) => {
+    if(!req.query || !req.query.token) return utils.jsonResponse(res, { message: 'Invalid access token' }, 404);
+
+    next();
 });
 
 module.exports = router;

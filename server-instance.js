@@ -7,9 +7,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-const path = require('path');
 
 class Server {
     constructor(options) {
@@ -23,23 +20,10 @@ class Server {
     }
 
     initDB() {
-        /*this.session = session({
-            secret: 'm39chm240dg90kh24ghk92h45c9gh4',
-            resave: false,
-            saveUninitialized: false,
-            store: new MongoStore({ mongooseConnection: mongoose.connection }),
-            cookie: {
-                secure: false,
-                httpOnly: false
-            }
-        });*/
-
         mongoose.Promise = global.Promise;
         mongoose.connect(this.options.mongoURL, err => {
             if(err) console.error(err);
         });
-
-        //this.app.use(this.session);
     }
 
     initEngine() {
@@ -52,7 +36,7 @@ class Server {
     }
 
     finalInit() {
-        let server = this.app.listen(this.options.port, this.options.ip, () => {
+        this.app.listen(this.options.port, this.options.ip, () => {
             console.log(`Server listening on ${this.options.ip}:${this.options.port}`);
         });
     }
