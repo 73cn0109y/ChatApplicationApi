@@ -28,7 +28,15 @@ router.post('/login', function (req, res, next) {
 
             user.save(function (err, result) {
                 if (err) return utils.jsonResponse(req, { message: 'Internal error' }, 500);
-                res.json({ success: true, token: token }).end();
+                res.json({
+                    success: true,
+                    token: token,
+                    user: {
+                        _id: user._id,
+                        DisplayName: user.DisplayName,
+                        Username: user.Username
+                    }
+                }).end();
             });
         });
     });
